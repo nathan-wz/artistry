@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { X } from "lucide-react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import axios from "axios";
 import { db, auth } from "../lib/firebase";
@@ -15,11 +17,32 @@ export default function UploadPage() {
     const [previewUrl, setPreviewUrl] = useState(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [tags, setTags] = useState([]);
+    const [tagInput, setTagInput] = useState("");
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
 
     const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    const handleAddTag = () => {
+        const value = tagInput.trim();
+        if (value && !tags.includes(value.toLowerCase())) {
+            setTags([...tags, value.toLowerCase()]);
+        }
+        setTagInput("");
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            handleAddTag();
+        }
+    };
+
+    const removeTag = (tag) => {
+        setTags(tags.filter((t) => t !== tag));
+    };
 
     // Dropzone setup
     const onDrop = useCallback((acceptedFiles) => {
@@ -35,6 +58,16 @@ export default function UploadPage() {
         accept: { "image/*": [] },
         multiple: false,
     });
+
+    const buildSearchIndex = (title, description, tags) => {
+        const words = [
+            ...title.toLowerCase().split(" "),
+            ...description.toLowerCase().split(" "),
+            ...tags.map((t) => t.toLowerCase()),
+        ];
+
+        return [...new Set(words.filter(Boolean))]; // remove duplicates and empty strings
+    };
 
     // Uplaod handler
     const handleSubmit = async (e) => {
@@ -73,6 +106,8 @@ export default function UploadPage() {
                 title,
                 description,
                 imageUrl,
+                tags,
+                searchIndex: buildSearchIndex(title, description, tags),
                 userId: auth.currentUser?.uid || null,
                 createdAt: serverTimestamp(),
             });
@@ -85,6 +120,8 @@ export default function UploadPage() {
             setPreviewUrl(null);
             setTitle("");
             setDescription("");
+            setTags([]);
+            setTagInput("");
             setProgress(0);
         } catch (err) {
             console.error("Upload error: ", err);
@@ -110,28 +147,6 @@ export default function UploadPage() {
                 <h1 className="text-3xl font-bold text-rich-black">
                     Upload Artwork
                 </h1>
-
-                <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="e.g. DreamScape"
-                        className="bg-light text-rich-black"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Describe your artwork..."
-                        className="bg-light text-rich-black"
-                    />
-                </div>
 
                 <div className="space-y-2">
                     <Label>Image</Label>
@@ -161,6 +176,57 @@ export default function UploadPage() {
                         />
                     </div>
                 )}
+
+                <div className="space-y-2">
+                    <Label>Title</Label>
+                    <Input
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g. DreamScape"
+                        className="bg-light text-rich-black"
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Describe your artwork..."
+                        className="bg-light text-rich-black"
+                    />
+                </div>
+
+                <div className="space-y-2">
+                    <Label>Tags</Label>
+
+                    <div className="flex flex-wrap gap-2 p-2 rounded-lg border bg-light border-muted">
+                        {tags.map((tag, index) => (
+                            <Badge
+                                key={index}
+                                variant="secondary"
+                                className="flex items-center gap-1 px-2 py-1 bg-dark-red text-white"
+                            >
+                                {tag}
+                                <X
+                                    size={14}
+                                    className="cursor-pointer hover:text-gray-300"
+                                    onClick={() => removeTag(tag)}
+                                />
+                            </Badge>
+                        ))}
+
+                        <Input
+                            className="border-none shadow-none p-0 m-0 w-auto bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            placeholder="Type a tag, press Enter..."
+                            value={tagInput}
+                            onChange={(e) => setTagInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
+                </div>
 
                 {uploading && (
                     <div className="w-full bg-muted rounded-full h-4 mt-2">

@@ -121,7 +121,7 @@ export default function CommentSection({ artworkId }) {
 
     return (
         <div className="flex flex-col h-full">
-            <h3 className="text-lg font-semibold mb-2">Comments</h3>
+            <h3 className="mt-4 text-lg font-semibold mb-2">Comments</h3>
             <div className="flex-1 overflow-y-auto mb-2 space-y-2">
                 {loading && <p>Loading comments...</p>}
 

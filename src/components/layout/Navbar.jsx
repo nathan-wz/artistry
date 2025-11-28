@@ -25,6 +25,11 @@ export default function Navbar() {
                     type="text"
                     placeholder="search"
                     className="bg-light border-copper-orange text-rich-black w-full px-4 py-2 rounded-full border"
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            navigate(`/search?q=${e.target.value}`);
+                        }
+                    }}
                 />
             </div>
 

@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import MasonryFeed from "../components/common/MasonryFeed";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
     Heart,
     MessageSquare,
@@ -30,6 +31,7 @@ export default function ImagePage() {
     const { user } = useAuth();
     const userId = user?.uid;
 
+    const [author, setAuthor] = useState(null);
     const [image, setImage] = useState(null);
     const [likes, setLikes] = useState([]);
     const [commentsCount, setCommentsCount] = useState(0);
@@ -39,12 +41,27 @@ export default function ImagePage() {
     // Real-time listener for this artwork
     useEffect(() => {
         const artworkRef = doc(db, "artworks", id);
-        const unsubscribe = onSnapshot(artworkRef, (snap) => {
+        const unsubscribe = onSnapshot(artworkRef, async (snap) => {
             if (snap.exists()) {
                 const data = snap.data();
                 setImage(data);
                 setLikes(data.likes || []);
                 setCommentsCount(data.commentsCount || 0);
+
+                // Fetch author info
+                if (data.userId) {
+                    try {
+                        const userRef = doc(db, "users", data.userId);
+                        const userSnap = await getDoc(userRef);
+                        if (userSnap.exists()) {
+                            setAuthor(userSnap.data());
+                        } else {
+                            setAuthor({ username: "Unknown", photoUrl: null });
+                        }
+                    } catch (err) {
+                        console.error("Error fetching author:", err);
+                    }
+                }
             } else {
                 setImage(null);
             }
@@ -138,6 +155,25 @@ export default function ImagePage() {
                         <h2 className="text-xl font-bold">{image.title}</h2>
                         <p>{image.description}</p>
                     </div>
+
+                    {image.tags && image.tags.length > 0 && (
+                        <div className="mb-4">
+                            <h4 className="text-sm font-semibold mb-2 text-muted-foreground">
+                                Tags
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                                {image.tags.map((tag, index) => (
+                                    <Badge
+                                        key={index}
+                                        variant="outline"
+                                        className="px-2 py-1 rounded-md"
+                                    >
+                                        #{tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Comment Section */}
                     <div className="flex-1 min-h-0">

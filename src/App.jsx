@@ -8,6 +8,7 @@ import UploadPage from "./pages/UploadPage";
 import ProtectedRoute from "./pages/routes/ProtectedRoute";
 import { Toaster } from "sonner";
 import Profile from "./pages/Profile";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/image/:id" element={<ImagePage />} />
+                    <Route path="/search" element={<SearchPage />} />
 
                     {/* Protected routes */}
                     <Route element={<ProtectedRoute />}>
