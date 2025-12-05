@@ -191,17 +191,7 @@ export default function ImagePage() {
                         <Button
                             variant="outline"
                             onClick={handleLikeToggle}
-                            className="
-            flex items-center gap-2 
-            bg-white 
-            text-rich-black 
-            border border-gray-300 
-            rounded-xl 
-            shadow-sm 
-            hover:bg-gray-100 
-            hover:shadow-md 
-            transition-all
-        "
+                            className=" flex items-center gap-2 bg-white text-rich-black border border-gray-300 rounded-xl shadow-sm hover:bg-gray-100 hover:shadow-md transition-all "
                         >
                             <Heart
                                 className="h-4 w-4"
