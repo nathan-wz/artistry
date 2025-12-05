@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }) {
             <div className="flex">
                 <Sidebar />
 
-                <main className="flex flex-col justify-center grow p-6 transition-all duration-300">
+                <main className="mx-auto my-auto justify-center grow p-6 transition-all duration-300">
                     {children}
                 </main>
             </div>

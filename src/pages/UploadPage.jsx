@@ -44,7 +44,6 @@ export default function UploadPage() {
         setTags(tags.filter((t) => t !== tag));
     };
 
-    // Dropzone setup
     const onDrop = useCallback((acceptedFiles) => {
         const selected = acceptedFiles[0];
         if (selected) {
@@ -65,11 +64,9 @@ export default function UploadPage() {
             ...description.toLowerCase().split(" "),
             ...tags.map((t) => t.toLowerCase()),
         ];
-
-        return [...new Set(words.filter(Boolean))]; // remove duplicates and empty strings
+        return [...new Set(words.filter(Boolean))];
     };
 
-    // Uplaod handler
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!file || !title || !description) {
@@ -81,7 +78,6 @@ export default function UploadPage() {
         setProgress(0);
 
         try {
-            // Upload to Cloudinary
             const formData = new FormData();
             formData.append("file", file);
             formData.append("upload_preset", UPLOAD_PRESET);
@@ -101,7 +97,6 @@ export default function UploadPage() {
 
             const imageUrl = res.data.secure_url;
 
-            // Save metadata to firestore
             await addDoc(collection(db, "artworks"), {
                 title,
                 description,
@@ -112,10 +107,8 @@ export default function UploadPage() {
                 createdAt: serverTimestamp(),
             });
 
-            // Success feedback
             toast.success("Artwork uploaded successfully");
 
-            // reset upload form fields
             setFile(null);
             setPreviewUrl(null);
             setTitle("");
@@ -131,7 +124,6 @@ export default function UploadPage() {
         }
     };
 
-    // Cleanup object URL
     useEffect(() => {
         return () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -142,108 +134,107 @@ export default function UploadPage() {
         <DashboardLayout>
             <form
                 onSubmit={handleSubmit}
-                className="max-w-xl mx-auto mt-20 space-y-6"
+                className="max-w-6xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-2 gap-12 px-6"
             >
-                <h1 className="text-3xl font-bold text-rich-black">
-                    Upload Artwork
-                </h1>
-
-                <div className="space-y-2">
-                    <Label>Image</Label>
+                {/* Left Column: Dropzone & Preview */}
+                <div className="space-y-6">
                     <div
                         {...getRootProps()}
-                        className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${
+                        className={`border-4 border-dark-red rounded-3xl p-12 flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 hover:shadow-2xl ${
                             isDragActive
-                                ? "border-dark-red bg-light/50"
-                                : "border-muted bg-light"
+                                ? "border-rust-red bg-light/20"
+                                : "bg-light/10 border-dark-red"
                         }`}
                     >
                         <input {...getInputProps()} />
-                        <p className="text-center text-rich-black">
+                        <p className="text-dark-red text-lg font-semibold text-center">
                             {isDragActive
-                                ? "Drop the image here..."
-                                : "Drag and drop an image, or click to select"}
+                                ? "Drop your artwork here..."
+                                : "Drag & drop an image, or click to select"}
                         </p>
                     </div>
+
+                    {previewUrl && (
+                        <div className="rounded-2xl overflow-hidden border-2 border-dark-red shadow-lg">
+                            <img
+                                src={previewUrl}
+                                alt="Preview"
+                                className="w-full object-contain max-h-[400px]"
+                            />
+                        </div>
+                    )}
                 </div>
 
-                {previewUrl && (
-                    <div className="mt-4">
-                        <img
-                            src={previewUrl}
-                            alt="Preview"
-                            className="rounded-lg border border-muted w-full max-h-96 object-contain"
-                        />
-                    </div>
-                )}
-
-                <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="e.g. DreamScape"
-                        className="bg-light text-rich-black"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Describe your artwork..."
-                        className="bg-light text-rich-black"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <Label>Tags</Label>
-
-                    <div className="flex flex-wrap gap-2 p-2 rounded-lg border bg-light border-muted">
-                        {tags.map((tag, index) => (
-                            <Badge
-                                key={index}
-                                variant="secondary"
-                                className="flex items-center gap-1 px-2 py-1 bg-dark-red text-white"
-                            >
-                                {tag}
-                                <X
-                                    size={14}
-                                    className="cursor-pointer hover:text-gray-300"
-                                    onClick={() => removeTag(tag)}
-                                />
-                            </Badge>
-                        ))}
-
+                {/* Right Column: Artwork Details */}
+                <div className="space-y-6 flex flex-col">
+                    <div className="space-y-4">
+                        <Label className="text-dark-red font-bold">Title</Label>
                         <Input
-                            className="border-none shadow-none p-0 m-0 w-auto bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                            placeholder="Type a tag, press Enter..."
-                            value={tagInput}
-                            onChange={(e) => setTagInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="e.g. DreamScape"
+                            className="bg-light text-rich-black border-dark-red focus:border-rust-red focus:ring-rust-red shadow-sm"
                         />
                     </div>
-                </div>
 
-                {uploading && (
-                    <div className="w-full bg-muted rounded-full h-4 mt-2">
-                        <div
-                            className="bg-dark-red h-4 rounded-full"
-                            style={{ width: `${progress}%` }}
-                        ></div>
+                    <div className="space-y-4">
+                        <Label className="text-dark-red font-bold">
+                            Description
+                        </Label>
+                        <Textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Describe your artwork..."
+                            className="bg-light text-rich-black border-dark-red focus:border-rust-red focus:ring-rust-red shadow-sm"
+                        />
                     </div>
-                )}
 
-                <Button
-                    className="bg-dark-red text-pale-sand hover:bg-dark-red/80"
-                    type="submit"
-                    disabled={uploading}
-                >
-                    {uploading ? `Uploading ${progress}%` : "Upload"}
-                </Button>
+                    <div className="space-y-2">
+                        <Label className="text-dark-red font-bold">Tags</Label>
+                        <div className="flex flex-wrap gap-3 p-3 rounded-xl border-2 border-dark-red bg-light/20">
+                            {tags.map((tag, index) => (
+                                <Badge
+                                    key={index}
+                                    variant="secondary"
+                                    className="flex items-center gap-2 px-3 py-1 rounded-full bg-dark-red text-light transform transition hover:scale-110"
+                                >
+                                    {tag}
+                                    <X
+                                        size={16}
+                                        className="cursor-pointer hover:text-rust-red"
+                                        onClick={() => removeTag(tag)}
+                                    />
+                                </Badge>
+                            ))}
+                            <Input
+                                className="border-none shadow-none w-32 bg-transparent placeholder:text-muted focus-visible:ring-0"
+                                placeholder="Type tag & press Enter"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                    </div>
+
+                    {uploading && (
+                        <div className="relative w-full h-5 rounded-full bg-muted/30 overflow-hidden shadow-inner">
+                            <div
+                                className="absolute left-0 top-0 h-5 bg-gradient-to-r from-rust-red via-dark-red to-deep-vermilion animate-pulse rounded-full"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    )}
+
+                    <Button
+                        type="submit"
+                        disabled={uploading}
+                        className="w-half h-20 py-3 rounded-2xl bg-dark-red hover:bg-rust-red text-light font-extrabold text-xl shadow-lg transition-transform transform hover:scale-105 mt-auto"
+                    >
+                        {uploading
+                            ? `Uploading ${progress}%`
+                            : "Upload Artwork"}
+                    </Button>
+                </div>
             </form>
         </DashboardLayout>
     );

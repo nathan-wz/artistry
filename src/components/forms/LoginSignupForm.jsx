@@ -7,8 +7,6 @@ import {
     updateProfile,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-
-// Firestore
 import {
     doc,
     setDoc,
@@ -19,12 +17,10 @@ import {
     getDoc,
 } from "firebase/firestore";
 
-// React Hook Form + Zod
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// shadcn/ui
 import {
     Form,
     FormField,
@@ -36,7 +32,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-// zod schemas
 const signupSchema = z.object({
     email: z.string().email("Invalid email format"),
     username: z
@@ -70,10 +65,6 @@ export default function LoginSignupForm({ formType }) {
         },
     });
 
-    // --------------------------------------------------------------------
-    // HELPERS
-    // --------------------------------------------------------------------
-
     const checkUsernameExists = async (username) => {
         const q = query(
             collection(db, "users"),
@@ -86,14 +77,12 @@ export default function LoginSignupForm({ formType }) {
     const handleSignup = async (values) => {
         const { email, password, username } = values;
 
-        // 1️⃣ Username uniqueness check
         if (await checkUsernameExists(username)) {
             form.setError("username", { message: "Username already taken" });
             return;
         }
 
         try {
-            // 2️⃣ Create Auth account
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 email,
@@ -103,7 +92,6 @@ export default function LoginSignupForm({ formType }) {
 
             await updateProfile(user, { displayName: username });
 
-            // 3️⃣ Create Firestore user profile
             await setDoc(doc(db, "users", user.uid), {
                 username: username.toLowerCase(),
                 email,
@@ -137,12 +125,10 @@ export default function LoginSignupForm({ formType }) {
             const result = await signInWithPopup(auth, googleProvider);
             const user = result.user;
 
-            // Check if Firestore profile already exists
             const userRef = doc(db, "users", user.uid);
             const userSnap = await getDoc(userRef);
 
             if (!userSnap.exists()) {
-                // Create Firestore profile
                 await setDoc(userRef, {
                     username: user.displayName?.toLowerCase() || "",
                     email: user.email,
@@ -156,15 +142,19 @@ export default function LoginSignupForm({ formType }) {
         }
     };
 
-    // --------------------------------------------------------------------
-    // UI
-    // --------------------------------------------------------------------
-
     return (
-        <div className="bg-white/10 backdrop-blur-md p-6 rounded-lg shadow-lg w-full max-w-sm">
+        <div className="w-full max-w-md bg-light rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute -top-16 -right-16 w-40 h-40 bg-goldenrod/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-copper-orange/20 rounded-full blur-3xl animate-pulse"></div>
+
+            <h2 className="text-3xl font-extrabold text-rich-black mb-6 text-center">
+                {formType === "signup" ? "Sign Up" : "Sign In"}
+            </h2>
+
             <Form {...form}>
                 <form
-                    className="space-y-6"
+                    className="space-y-5"
                     onSubmit={form.handleSubmit((values) =>
                         formType === "signup"
                             ? handleSignup(values)
@@ -176,15 +166,18 @@ export default function LoginSignupForm({ formType }) {
                         control={form.control}
                         name="email"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
+                            <FormItem className="relative group">
+                                <FormLabel className="text-rich-black">
+                                    Email
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder="you@example.com"
                                         {...field}
+                                        className="bg-pale-sand/20 border-rich-black focus:border-dark-red focus:ring-dark-red transition-all duration-300"
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="text-deep-vermilion" />
                             </FormItem>
                         )}
                     />
@@ -195,15 +188,18 @@ export default function LoginSignupForm({ formType }) {
                             control={form.control}
                             name="username"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Username</FormLabel>
+                                <FormItem className="relative group">
+                                    <FormLabel className="text-rich-black">
+                                        Username
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="your_username"
                                             {...field}
+                                            className="bg-pale-sand/20 border-rich-black focus:border-dark-red focus:ring-dark-red transition-all duration-300"
                                         />
                                     </FormControl>
-                                    <FormMessage />
+                                    <FormMessage className="text-deep-vermilion" />
                                 </FormItem>
                             )}
                         />
@@ -214,29 +210,37 @@ export default function LoginSignupForm({ formType }) {
                         control={form.control}
                         name="password"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
+                            <FormItem className="relative group">
+                                <FormLabel className="text-rich-black">
+                                    Password
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
                                         {...field}
+                                        className="bg-pale-sand/20 border-rich-black focus:border-dark-red focus:ring-dark-red transition-all duration-300"
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                <FormMessage className="text-deep-vermilion" />
                             </FormItem>
                         )}
                     />
 
-                    <Button type="submit" className="w-full">
-                        {formType === "login" ? "Sign in" : "Sign up"}
+                    <Button
+                        type="submit"
+                        className="w-full bg-dark-red hover:bg-deep-vermilion text-light font-bold transition-all duration-300 shadow-lg"
+                    >
+                        {formType === "login" ? "Sign In" : "Sign Up"}
                     </Button>
 
-                    <div className="text-center text-gray-300">or</div>
+                    <div className="text-center text-rich-black/70 my-2">
+                        or
+                    </div>
 
                     <Button
                         type="button"
-                        className="w-full"
+                        className="w-full bg-teal hover:bg-deep-teal text-light font-bold transition-all duration-300 shadow-lg"
                         onClick={handleGoogleLogin}
                     >
                         Sign in with Google
