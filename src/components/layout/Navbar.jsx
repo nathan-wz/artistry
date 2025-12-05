@@ -105,9 +105,11 @@ export default function Navbar() {
     return (
         <header className="bg-white sticky top-0 w-full px-6 py-4 flex items-center justify-between z-100 shadow-sm">
             {/* Left: Brand */}
-            <div className="text-dark-red text-xl font-bold tracking-wide">
-                Artistry
-            </div>
+            <Link to={"/"}>
+                <div className="text-dark-red text-xl font-bold tracking-wide">
+                    Artistry
+                </div>
+            </Link>
 
             {/* Center: Search Bar */}
             <div className="flex-1 mx-6 relative" ref={wrapperRef}>

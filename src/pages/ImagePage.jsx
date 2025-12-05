@@ -178,18 +178,40 @@ export default function ImagePage() {
                     />
 
                     <div className="flex space-x-5 items-center">
-                        <Button onClick={() => setCommentsOpen(true)}>
-                            <MessageSquare /> {commentsCount} comments
+                        <Button
+                            variant="outline"
+                            onClick={() => setCommentsOpen(true)}
+                            className="flex items-center gap-2 bg-white text-rich-black border border-gray-300 rounded-xl shadow-sm hover:bg-gray-100 hover:shadow-md transition-all"
+                        >
+                            <MessageSquare className="h-4 w-4" />
+                            {commentsCount} comments
                         </Button>
-                        <Button onClick={handleLikeToggle}>
+
+                        {/* Likes Button */}
+                        <Button
+                            variant="outline"
+                            onClick={handleLikeToggle}
+                            className="
+            flex items-center gap-2 
+            bg-white 
+            text-rich-black 
+            border border-gray-300 
+            rounded-xl 
+            shadow-sm 
+            hover:bg-gray-100 
+            hover:shadow-md 
+            transition-all
+        "
+                        >
                             <Heart
+                                className="h-4 w-4"
                                 color={likes.includes(userId) ? "red" : "black"}
-                            />{" "}
+                            />
                             {likes.length} likes
                         </Button>
-                        <Button>
+                        {/* <Button>
                             <DollarSign /> Donate
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 
