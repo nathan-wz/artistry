@@ -10,6 +10,10 @@ import { Toaster } from "sonner";
 import Profile from "./pages/Profile";
 import SearchPage from "./pages/SearchPage";
 import EditProfile from "./pages/EditProfile";
+import EditImagePage from "./pages/EditImagePage";
+import DonatePage from "./pages/DonatePage";
+import DonationSuccess from "./pages/DonationSuccess";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 function App() {
     return (
@@ -33,6 +37,19 @@ function App() {
                             element={<Profile />}
                         />
                         <Route path="/edit-profile" element={<EditProfile />} />
+                        <Route
+                            path="/edit-image/:id"
+                            element={<EditImagePage />}
+                        />
+                        <Route
+                            path="/donate/:artistId"
+                            element={<DonatePage />}
+                        />
+                        <Route
+                            path="/donation-success"
+                            element={<DonationSuccess />}
+                        />
+                        <Route path="/analytics" element={<AnalyticsPage />} />
                     </Route>
                 </Routes>
             </BrowserRouter>

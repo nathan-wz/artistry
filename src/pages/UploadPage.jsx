@@ -82,18 +82,12 @@ export default function UploadPage() {
             formData.append("file", file);
             formData.append("upload_preset", UPLOAD_PRESET);
 
-            const res = await axios.post(
-                `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-                formData,
-                {
-                    onUploadProgress: (progressEvent) => {
-                        const percent = Math.round(
-                            (progressEvent.loaded * 100) / progressEvent.total
-                        );
-                        setProgress(percent);
-                    },
-                }
-            );
+            const res = await axios.post(import.meta.env.VITE_CLOUDINARY_API, formData, {
+                onUploadProgress: (progressEvent) => {
+                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setProgress(percent);
+                },
+            });
 
             const imageUrl = res.data.secure_url;
 
@@ -141,26 +135,18 @@ export default function UploadPage() {
                     <div
                         {...getRootProps()}
                         className={`border-4 border-dark-red rounded-3xl p-12 flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 hover:shadow-2xl ${
-                            isDragActive
-                                ? "border-rust-red bg-light/20"
-                                : "bg-light/10 border-dark-red"
+                            isDragActive ? "border-rust-red bg-light/20" : "bg-light/10 border-dark-red"
                         }`}
                     >
                         <input {...getInputProps()} />
                         <p className="text-dark-red text-lg font-semibold text-center">
-                            {isDragActive
-                                ? "Drop your artwork here..."
-                                : "Drag & drop an image, or click to select"}
+                            {isDragActive ? "Drop your artwork here..." : "Drag & drop an image, or click to select"}
                         </p>
                     </div>
 
                     {previewUrl && (
                         <div className="rounded-2xl overflow-hidden border-2 border-dark-red shadow-lg">
-                            <img
-                                src={previewUrl}
-                                alt="Preview"
-                                className="w-full object-contain max-h-[400px]"
-                            />
+                            <img src={previewUrl} alt="Preview" className="w-full object-contain max-h-[400px]" />
                         </div>
                     )}
                 </div>
@@ -178,9 +164,7 @@ export default function UploadPage() {
                     </div>
 
                     <div className="space-y-4">
-                        <Label className="text-dark-red font-bold">
-                            Description
-                        </Label>
+                        <Label className="text-dark-red font-bold">Description</Label>
                         <Textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -196,14 +180,11 @@ export default function UploadPage() {
                                 <Badge
                                     key={index}
                                     variant="secondary"
-                                    className="flex items-center gap-2 px-3 py-1 rounded-full bg-dark-red text-light transform transition hover:scale-110"
+                                    className="flex items-center gap-2 px-3 py-1 rounded-full bg-dark-red text-light transform transition hover:scale-110 cursor-pointer"
+                                    onClick={() => removeTag(tag)}
                                 >
                                     {tag}
-                                    <X
-                                        size={16}
-                                        className="cursor-pointer hover:text-rust-red"
-                                        onClick={() => removeTag(tag)}
-                                    />
+                                    <X size={16} className=" hover:text-rust-red" />
                                 </Badge>
                             ))}
                             <Input
@@ -219,7 +200,7 @@ export default function UploadPage() {
                     {uploading && (
                         <div className="relative w-full h-5 rounded-full bg-muted/30 overflow-hidden shadow-inner">
                             <div
-                                className="absolute left-0 top-0 h-5 bg-gradient-to-r from-rust-red via-dark-red to-deep-vermilion animate-pulse rounded-full"
+                                className="absolute left-0 top-0 h-5 bg-linear-to-r from-rust-red via-dark-red to-deep-vermilion animate-pulse rounded-full"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -230,9 +211,7 @@ export default function UploadPage() {
                         disabled={uploading}
                         className="w-half h-20 py-3 rounded-2xl bg-dark-red hover:bg-rust-red text-light font-extrabold text-xl shadow-lg transition-transform transform hover:scale-105 mt-auto"
                     >
-                        {uploading
-                            ? `Uploading ${progress}%`
-                            : "Upload Artwork"}
+                        {uploading ? `Uploading ${progress}%` : "Upload Artwork"}
                     </Button>
                 </div>
             </form>

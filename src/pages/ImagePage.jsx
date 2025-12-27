@@ -24,6 +24,7 @@ import {
     MessageSquare,
     DollarSign,
     CircleUserRound,
+    Loader2,
     X,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -90,6 +91,20 @@ export default function ImagePage() {
         fetchArtworks();
     }, []);
 
+    // Track unique views
+    useEffect(() => {
+        if (!userId || !image) return;
+
+        const artworkRef = doc(db, "artworks", id);
+
+        // Only add userId if they haven’t viewed it before
+        if (!image.views || !image.views.includes(userId)) {
+            updateDoc(artworkRef, {
+                views: arrayUnion(userId),
+            });
+        }
+    }, [image, userId, id]);
+
     // Load comments
     useEffect(() => {
         if (!commentsOpen) return;
@@ -139,7 +154,9 @@ export default function ImagePage() {
     if (loading) {
         return (
             <DashboardLayout>
-                <div className="p-6 text-lg">Loading...</div>
+                <div className="flex justify-center mt-40">
+                    <Loader2 className="animate-spin w-10 h-10 text-dark-red" />
+                </div>
             </DashboardLayout>
         );
     }
@@ -177,6 +194,14 @@ export default function ImagePage() {
                         alt=""
                     />
 
+                    {userId === image.userId && (
+                        <Link to={`/edit-image/${id}`}>
+                            <Button className="mt-4 bg-dark-red hover:bg-rust-red text-light">
+                                Edit Artwork
+                            </Button>
+                        </Link>
+                    )}
+
                     <div className="flex space-x-5 items-center">
                         <Button
                             variant="outline"
@@ -199,9 +224,14 @@ export default function ImagePage() {
                             />
                             {likes.length} likes
                         </Button>
-                        {/* <Button>
-                            <DollarSign /> Donate
-                        </Button> */}
+                        <Link to={`/donate/${image.userId}`}>
+                            <Button
+                                variant="outline"
+                                className=" flex items-center gap-2 bg-white text-rich-black border border-gray-300 rounded-xl shadow-sm hover:bg-gray-100 hover:shadow-md transition-all "
+                            >
+                                <DollarSign /> Donate
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 

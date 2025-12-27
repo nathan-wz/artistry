@@ -120,7 +120,7 @@ export default function Landing() {
                             🌐 Continent-Wide Discovery
                         </h3>
                         <p className="text-light/70">
-                            Explore exhibitions, trending artists, and curated
+                            Explore portfolios from trending artists and curated
                             showcases from all over Africa.
                         </p>
                     </motion.div>

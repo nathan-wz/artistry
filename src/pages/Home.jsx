@@ -3,9 +3,11 @@ import MasonryFeed from "../components/common/MasonryFeed";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { db } from "../lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
     const [artworks, setArtworks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchArtworks = async () => {
@@ -24,7 +26,18 @@ export default function Home() {
         };
 
         fetchArtworks();
+        setLoading(false);
     }, []);
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex justify-center mt-40">
+                    <Loader2 className="animate-spin w-10 h-10 text-dark-red" />
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout>

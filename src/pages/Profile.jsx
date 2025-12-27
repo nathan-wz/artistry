@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { CircleUserRound, ImageOff } from "lucide-react";
 import MasonryFeed from "../components/common/MasonryFeed";
 import { useAuth } from "../context/AuthContext";
+import { Loader2 } from "lucide-react";
 
 export default function Profile() {
     const { username } = useParams();
@@ -70,7 +71,9 @@ export default function Profile() {
     if (loading) {
         return (
             <DashboardLayout>
-                <div className="p-6 text-lg">Loading profile...</div>
+                <div className="flex justify-center mt-40">
+                    <Loader2 className="animate-spin w-10 h-10 text-dark-red" />
+                </div>
             </DashboardLayout>
         );
     }
@@ -108,9 +111,12 @@ export default function Profile() {
                     </p>
                 </CardContent>
                 {isOwner && (
-                    <CardFooter>
+                    <CardFooter className="flex  gap-4">
                         <Link to={"/edit-profile"}>
                             <Button>Update Profile</Button>
+                        </Link>
+                        <Link to={"/analytics"}>
+                            <Button>Analytics</Button>
                         </Link>
                     </CardFooter>
                 )}
